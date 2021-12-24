@@ -1,0 +1,120 @@
+version: '3.8'
+services:
+  mongo_bids_db:
+    image: mongo
+    container_name: mongo_bids_db
+    restart: always
+    networks:
+      - auction-service-network
+    environment:
+      MONGO_INITDB_DATABASE: Bids
+    ports:
+      - 27018:27017
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    restart: on-failure:10
+    container_name: zookeeper
+    networks:
+      - auction-service-network
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  Kafka:
+    image: 'bitnami/kafka:latest'
+    hostname: Kafka
+    container_name: Kafka
+    restart: on-failure:10
+    networks:
+      - auction-service-network
+    ports:
+      - '9092:9092'
+    environment:
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://Kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CREATE_TOPICS=bids_topic
+      # - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      # - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+    #      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+    #      - ALLOW_PLAINTEXT_LISTENER=yes
+    #      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+    #      - KAFKA_CFG_LISTENERS=CLIENT://localhost:9092,EXTERNAL://localhost:9093
+    #      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://localhost:9092,EXTERNAL://localhost:9093
+    #      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+
+    #    KAFKA_ADVERTISED_HOST_NAME: kafka
+    #      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    depends_on:
+      - zookeeper
+
+  bidding-discovery-service:
+    build:
+      context: ./auction-discovery-service
+    image: bidding-discovery-service
+#    environment:
+#      HOST_IP: $DOCKER_HOST_IP
+    networks:
+      - auction-service-network
+    container_name: bidding-discovery-service
+    ports:
+      - "8888:8888"
+
+  bidding-command-service:
+    build:
+      context: ./command-service
+    image: bidding-command-service
+    container_name: bidding-command-service
+    hostname: bidding-command-service
+    ports:
+      - 8099:8099
+    networks:
+      - auction-service-network
+    restart: on-failure:10
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongo_bids_db
+      SPRING_DATA_MONGODB_PORT: 27017
+    depends_on:
+     - Kafka
+     - bidding-discovery-service
+
+  bidding-query-service:
+    build:
+      context: ./query-service
+    image: bidding-query-service
+    container_name: bidding-query-service
+    hostname: bidding-query-service
+    ports:
+      - 9096:9096
+    networks:
+      - auction-service-network
+    restart: on-failure:10
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongo_bids_db
+      SPRING_DATA_MONGODB_PORT: 27017
+    depends_on:
+      - mongo_bids_db
+      - Kafka
+      - bidding-discovery-service
+
+  product-bidding-service:
+    build:
+      context: ./product-bidding-service
+    image: product-bidding-service
+    container_name: product-bidding-service
+    hostname: product-bidding-service
+    ports:
+      - "9097:9097"
+    networks:
+      - auction-service-network
+    depends_on:
+      - bidding-discovery-service
+
+networks:
+  auction-service-network:
+    name: bids-network
+

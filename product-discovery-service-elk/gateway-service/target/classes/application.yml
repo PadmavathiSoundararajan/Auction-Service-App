@@ -1,0 +1,16 @@
+server:
+  port: 8098
+
+spring:
+  application:
+    name: Gateway-Service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: product-service
+          uri: http://product-service:8095/
+          predicates:
+            - Path=/e-auction/**

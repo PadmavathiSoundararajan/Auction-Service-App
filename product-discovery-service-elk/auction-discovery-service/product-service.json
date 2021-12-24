@@ -1,0 +1,183 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Product-Service",
+    "description": "Product Microservice",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8095",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/e-auction/api/v1/seller/add-product": {
+      "post": {
+        "tags": [
+          "product-resource"
+        ],
+        "operationId": "addProduct",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/e-auction/api/v1/seller/delete/{productId}": {
+      "delete": {
+        "tags": [
+          "product-resource"
+        ],
+        "operationId": "deleteProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/e-auction/api/v1/seller/getProduct/{productId}": {
+      "get": {
+        "tags": [
+          "product-resource"
+        ],
+        "operationId": "getProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "default response",
+            "schema": {
+              "$ref": "#/components/schemas/Product"
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "required": [
+          "bidEndDate",
+          "productName"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "productName": {
+            "maxLength": 30,
+            "minLength": 5,
+            "type": "string"
+          },
+          "shortDescription": {
+            "type": "string"
+          },
+          "detailedDescription": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "startingPrice": {
+            "pattern": "[0-9]+",
+            "type": "string"
+          },
+          "bidEndDate": {
+            "type": "string"
+          },
+          "seller": {
+            "$ref": "#/components/schemas/Seller"
+          }
+        }
+      },
+      "Seller": {
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "maxLength": 30,
+            "minLength": 5,
+            "type": "string"
+          },
+          "lastName": {
+            "maxLength": 25,
+            "minLength": 3,
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string"
+          },
+          "phone": {
+            "maxLength": 10,
+            "minLength": 10,
+            "pattern": "[0-9]+",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

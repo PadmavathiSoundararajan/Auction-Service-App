@@ -1,0 +1,119 @@
+version: "3.8"
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: elasticsearch
+    networks:
+      - auction-service-network
+    ports:
+      - "9200:9200"
+    environment:
+      - "discovery.type=single-node"
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data:rw              # Persistence data
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.2.0
+    container_name: logstash
+    networks:
+      - auction-service-network
+    ports:
+      - "25826:25826"
+      - "5044:5044"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro                # Pipeline configuration
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.2.0
+    container_name: kibana
+    networks:
+      - auction-service-network
+    ports:
+      - "5601:5601"
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    user: root
+    image: docker.elastic.co/beats/filebeat:7.2.0
+    container_name: filebeat
+    command: filebeat -e -strict.perms=false
+    networks:
+      - auction-service-network
+    volumes:
+      - ./filebeat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro # Configuration file
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro           # Docker logs
+      - /var/run/docker.sock:/var/run/docker.sock:ro                       # Additional information about containers
+      - ./filebeat/data:/usr/share/filebeat/data:rw                        # Persistence data
+    restart: on-failure
+    depends_on:
+      - logstash
+
+  mongo_db:
+    image: mongo
+    container_name: mongo
+    restart: always
+    networks:
+      - auction-service-network
+    ports:
+      - 27017:27017
+
+  product-discovery-service:
+    build:
+      context: ./auction-discovery-service
+    image: product-discovery-service
+    container_name: product-discovery-service
+    hostname: product-discovery-service
+    ports:
+      - 8761:8761
+    networks:
+      - auction-service-network
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    image: gateway-service
+    container_name: gateway-service
+    hostname: gateway-service
+    ports:
+      - 8098:8098
+    networks:
+      - auction-service-network
+    restart: on-failure:10
+    depends_on:
+      - product-discovery-service
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+
+  product-service:
+    build:
+      context: ./product-service
+    image: product-service
+    container_name: product-service
+    hostname: product-service
+    ports:
+      - 8095:8095
+    networks:
+      - auction-service-network
+    restart: on-failure:10
+    depends_on:
+      - product-discovery-service
+      - mongo_db
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+
+
+networks:
+  auction-service-network:
+    name: bids-network
+

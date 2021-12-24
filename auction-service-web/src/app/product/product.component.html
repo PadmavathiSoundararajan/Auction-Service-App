@@ -1,0 +1,96 @@
+<h2 class="bg-success text-center">Auction Service App</h2>
+<h3 class="bg-success text-center">Product - Bid Details</h3> 
+
+<div  style="width: 600px;" class="container">
+    <div class="container">
+        <table class="table table-striped">
+            <thead>
+            </thead>
+            <tbody>
+                <tr>
+                <td>Product Id</td>
+                
+                    <td>
+                        <input type="text" class="form-control" id="ProductId"  name="productIdToSearch" [(ngModel)]="productIdToSearch">
+                    </td>
+                    <td>
+                        <button name="GET"  (click)="getProductDetails()" class="btn btn-success" style="width: 60px;height: 40px;">GET</button>
+                    </td>
+                
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="container" *ngIf="isProductNotEmptyObject()">
+        <table class="table table-striped">
+            <thead>
+            </thead>
+            <tbody>
+                <tr>
+                <td>Product Name</td>
+                <td>
+                    <input type="text" value="{{productBids?.product?.productName}}" class="form-control" id="ProductName"  name="Product Name">
+                </td>
+                </tr>
+                <tr>
+                <td>Short Description</td>
+                <td>
+                    <input type="text" value="{{productBids?.product?.shortDescription}}" class="form-control" id="ProductName"  name="Product Name">
+                </td>
+                </tr>
+                <tr>
+                    <td>Detailed Description</td>
+                    <td>
+                        <input type="text" value="{{productBids?.product?.detailedDescription}}" class="form-control" id="ProductName"  name="Product Name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Category</td>
+                    <td>
+                        <input type="text" value="{{productBids?.product?.category}}" class="form-control" id="ProductName"  name="Product Name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Starting Price</td>
+                    <td>
+                        <input type="text" value="{{productBids?.product?.startingPrice}}" class="form-control" id="ProductName"  name="Product Name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Bid End Date</td>
+                    <td>
+                        <input type="text" value="{{productBids?.product?.bidEndDate}}" class="form-control" id="ProductName"  name="Product Name">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="container" *ngIf="isBidsNotEmptyObject()">       
+        <h2 class="bg-success text-center">Bids</h2>          
+        <div class="d-lg-flex">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Bid Amount</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let bid of productBids?.bids">
+                    <td>{{bid.bidAmount}}</td>
+                    <td>{{bid.firstName}} {{bid.lastName}}</td>
+                    <td>{{bid.email}}</td>
+                    <td>{{bid.phone}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+

@@ -2,8 +2,8 @@
 
 **Projects:**
 **Bidding-Service-Cqrs-Kafka :**
-	•	demonstrates placing bids, updating bids scenarios.
-	•	CQRS pattern is implemented using AXON framework using MongoDB as Event store and Kafka as Event bus. Command-Service deals with command part and query-service deals with query part.
+	- demonstrates placing bids, updating bids scenarios.
+	- CQRS pattern is implemented using AXON framework using MongoDB as Event store and Kafka as Event bus. Command-Service deals with command part and query-service deals 	with query part.
 ** product-discovery-service-elk :**
 	•	demonstrates creating products, deleting products and getting product specific to a product Id
 	•	Also, ELk stack is implemented in this
@@ -25,5 +25,6 @@
 		o	(PUT MEthod) Update Bid AMount - "https://localhost:8099/e-auction/api/v1/buyer/update/bid-amount/{productId}/{buyerEmailld}/{newBidAmount}"
 **** ADD Product Json Example : ****
 { "bidEndDate": "25-12-2021", "category": "ORNAMENT", "detailedDescription": "Painting is an art.", "productName": "Abstract Art", "seller": { "address": "XYZ", "city": "mumbai", "email": "xxxx@gmail.com", "firstName": "YYYYYY", "lastName": "ZZZZZZZZZ", "phone": "1234507775", "pin": "770786", "state": "Maharashtra" }, "shortDescription": "Paint", "startingPrice": 55 }
+
 **ADD Bid Json Example:** { "firstName": "AAAA", "lastName": "BBBBB", "address": "Example Addrs", "city": "mumbai", "state": "Maharashtra", "email": "dddddd@gmail.com", "pin": "6000168", "phone": "1234508988", "productId" : "61c4aa0b03c8e54d64484627", "bidAmount" : "666" }
 
